@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Interactive Avatar</title>
+  <style>
+    #avatar {
+      width: 300px;
+      height: 300px;
+      background: #ccc;
+    }
+  </style>
+</head>
+<body>
+  <div id="avatar"></div>
+  <input type="text" id="query" placeholder="Haz una pregunta...">
+  <button onclick="askQuestion()">Preguntar</button>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    const avatar = document.getElementById('avatar');
+
+    function askQuestion() {
+      const query = document.getElementById('query').value;
+      fetch('/query', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ query })
+      })
+      .then(response => response.json())
+      .then(data => {
+        const response = data.response;
+        speak(response);
+      });
+    }
+
+    function speak(text) {
+      const speech = new SpeechSynthesisUtterance(text);
+      window.speechSynthesis.speak(speech);
+    }
+
+    // Aquí puedes agregar código para animar el avatar usando Three.js
+    // Dentro del script en index.html
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth, window.innerHeight);
+avatar.appendChild(renderer.domElement);
+
+const geometry = new THREE.BoxGeometry();
+const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+const cube = new THREE.Mesh(geometry, material);
+scene.add(cube);
+
+camera.position.z = 5;
+
+function animate() {
+  requestAnimationFrame(animate);
+  cube.rotation.x += 0.01;
+  cube.rotation.y += 0.01;
+  renderer.render(scene, camera);
+}
+animate();
+
+  </script>
+</body>
+</html>
